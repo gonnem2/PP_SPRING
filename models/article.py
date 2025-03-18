@@ -5,7 +5,6 @@ from datetime import datetime
 from sqlalchemy.orm import relationship
 
 
-
 class Article(Base):
     __tablename__ = "goods"
 
@@ -18,3 +17,7 @@ class Article(Base):
     created_at = Column(DateTime, default=datetime.now)
 
     category = relationship("Category", back_populates="articles")
+    sales = relationship("Sales", back_populates="goods")
+    purchases = relationship("Purchase", back_populates="goods")
+    notifications = relationship("Notifications", back_populates="goods")
+    good_stats = relationship("GoodStat", back_populates="goods")

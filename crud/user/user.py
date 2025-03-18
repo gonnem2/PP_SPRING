@@ -17,18 +17,16 @@ async def get_user_by_username(db: AsyncSession, username: str):
     return result.first()
 
 
-
-
 async def create_user(db: AsyncSession, user: CreateUser):
     if await get_user_by_email(db, user.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Пользователь с таким email уже существует"
-                            )
+            detail="Пользователь с таким email уже существует",
+        )
     if await get_user_by_username(db, user.username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Пользователь с таким username уже существует"
+            detail="Пользователь с таким username уже существует",
         )
 
     db_user = User(

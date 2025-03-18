@@ -20,6 +20,8 @@ async def get_all_users(db: Annotated[AsyncSession, Depends(get_db)]):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user_endpoint(db: Annotated[AsyncSession, Depends(get_db)], user: CreateUser):
+async def create_user_endpoint(
+    db: Annotated[AsyncSession, Depends(get_db)], user: CreateUser
+):
     new_user = await create_user(db, user)
     return new_user

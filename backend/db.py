@@ -20,6 +20,5 @@ async def get_db() -> AsyncSession:
         yield ses
 
 
-
 class Base(DeclarativeBase):
     pass

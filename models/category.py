@@ -11,4 +11,3 @@ class Category(Base):
     title = Column(String, unique=True)
 
     articles = relationship("Article", back_populates="category")
-
