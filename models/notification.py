@@ -15,4 +15,4 @@ class Notification(Base):
     description = Column(String)
     date = Column(DateTime, default=datetime.now)
 
-    goods = relationship("Article", "notifications")
+    goods = relationship("Article", back_populates="notifications")

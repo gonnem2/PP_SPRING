@@ -19,5 +19,5 @@ class Article(Base):
     category = relationship("Category", back_populates="articles")
     sales = relationship("Sales", back_populates="goods")
     purchases = relationship("Purchase", back_populates="goods")
-    notifications = relationship("Notifications", back_populates="goods")
+    notifications = relationship("Notification", back_populates="goods")
     good_stats = relationship("GoodStat", back_populates="goods")

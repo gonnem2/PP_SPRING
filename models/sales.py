@@ -16,5 +16,5 @@ class Sales(Base):
     total_price = Column(Float)
     sales_date = Column(DateTime, default=datetime.now)
 
-    users = relationship("User", back_populates="sales")
+    user = relationship("User", back_populates="sales")
     goods = relationship("Article", back_populates="sales")

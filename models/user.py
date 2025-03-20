@@ -18,5 +18,5 @@ class User(Base):
     is_warehouse_worker = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
 
-    sales = relationship("Sales", back_populates="users")
+    sales = relationship("Sales", back_populates="user")
     seller_stats = relationship("SellerStat", back_populates="users")
