@@ -19,7 +19,7 @@ from crud.good.good_crud import (
     get_prod_stat,
 )
 from schemas.requests.good_from_user import GoodFromUser
-from schemas.response.GoodStatistic import GoodStat
+from schemas.response.good_statistic import GoodStat
 from schemas.response.good_for_user_by_id import GoodAnswerId
 from schemas.response.good_for_user_by_name import GoodAnswer
 
@@ -50,8 +50,7 @@ async def get_goods_by_category(
 async def get_prod_by_id(
     product_id: Annotated[int, Path(...)], db: Annotated[AsyncSession, Depends(get_db)]
 ):
-    """
-    Возвращает товар в БД по id
+    """Возвращает товар в БД по id
 
     Args:
         product_id (int): id товара
@@ -81,8 +80,7 @@ async def get_goods(
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1)] = 100,
 ):
-    """
-    Возвращает список всех товаров
+    """Возвращает список всех товаров
 
     Args:
         db (AsyncSession): объект сессии бд
@@ -108,8 +106,7 @@ async def get_goods(
 async def get_good_by_name(
     name: Annotated[str, Query(...)], db: Annotated[AsyncSession, Depends(get_db)]
 ):
-    """
-    Возвращает товар. чье имя наиболее похоже на введенное
+    """Возвращает товар. чье имя наиболее похоже на введенное
 
     Args:
         name (str): Имя товара
@@ -130,8 +127,7 @@ async def get_good_by_name(
 async def add_new_good(
     good: GoodFromUser, db: Annotated[AsyncSession, Depends(get_db)]
 ):
-    """
-    Добавляет товар в БД
+    """Добавляет товар в БД
 
     Args:
         good (GoodFromUser): объект с атрибутами товара
@@ -156,19 +152,18 @@ async def update_goods(
     db: Annotated[AsyncSession, Depends(get_db)],
     good_id: Annotated[int, Path(...)],
 ):
-    """
-    Обновляет товар в БД
+    """Обновляет товар в БД
 
-     Args:
-         good (str): объект с информацией о товаре
-         db (AsyncSession): Сессия с БД
-         good_id (int): id товара, который нужно заменить
+    Args:
+        good (str): объект с информацией о товаре
+        db (AsyncSession): Сессия с БД
+        good_id (int): id товара, который нужно заменить
 
-     Returns:
-         GoodAnswer: объект с именеи товара и сообщением об успешном обновлении
+    Returns:
+        GoodAnswer: объект с именеи товара и сообщением об успешном обновлении
 
-     Raises:
-         HttpExcepion: 404, если товар с переданным id не найден
+    Raises:
+        HttpExcepion: 404, если товар с переданным id не найден
     """
 
     response = await update_good(good_id, good, db)
@@ -184,8 +179,7 @@ async def update_good_stock_quantity(
     product_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    """
-    Обновляет количество товара
+    """Обновляет количество товара
 
     Args:
         goods_quantity (int): количество товара, которое нужно добавить

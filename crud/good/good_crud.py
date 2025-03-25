@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import HTTPException, status
 from sqlalchemy import select, update, func
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import Category, Sales
 from models.article import Article
 from schemas.requests.good_from_user import GoodFromUser
-from schemas.response.GoodStatistic import GoodStat
+from schemas.response.good_statistic import GoodStat
 
 
 async def get_goods_by_name(db: AsyncSession, name: str):
@@ -181,42 +181,32 @@ async def get_prod_stat(db: AsyncSession, product_id: int, start_date, end_date)
     """Возвращает словарь со статистикой"""
 
     product = await get_good_by_id(product_id, db)
-
     if start_date > end_date:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Дата начала должна быть меньше или равна дате окончания",
         )
 
-    product_sales_count = await db.scalar(
-        select(func.count())
-        .where(Sales.good_id == product_id)
-        .where(Sales.sales_date >= start_date)
-        .where(Sales.sales_date <= end_date)
+    query = select(
+        func.count().label("sales_count"),
+        func.sum(Sales.total_price).label("revenue"),
+        func.sum(Sales.quantity * Article.cost_price).label("total_cost"),
+    ).where(
+        Sales.good_id == product_id,
+        Sales.sales_date >= start_date,
+        Sales.sales_date <= end_date,
     )
 
-    # Общая выручка
-    product_revenue = await db.scalar(
-        select(func.sum(Sales.total_price))
-        .where(Sales.good_id == product_id)
-        .where(Sales.sales_date >= start_date)
-        .where(Sales.sales_date <= end_date)
-    )
+    result = await db.execute(query)
+    row = result.first()
 
-    # Выручка без наценки
-    total_cost = await db.scalar(
-        select(func.sum(Sales.quantity * Article.cost_price))
-        .where(Sales.good_id == product_id)
-        .where(Sales.sales_date >= start_date)
-        .where(Sales.sales_date <= end_date)
-    )
-    profit = product_revenue - total_cost if product_revenue else 0
+    profit = row.revenue - row.total_cost if row.revenue else 0
 
     return GoodStat(
         product_id=product_id,
         product_name=product.name,
-        product_sales_count=product_sales_count or 0,
-        product_revenue=product_revenue or 0,
+        product_sales_count=row.sales_count or 0,
+        product_revenue=row.revenue or 0,
         profit=profit or 0,
         product_quantity=product.stock_quantity,
     )

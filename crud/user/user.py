@@ -1,20 +1,15 @@
 from fastapi import HTTPException, status
-from sqlalchemy import select
+
 from sqlalchemy.ext.asyncio import AsyncSession
+from passlib.context import CryptContext
 
 from models.user import User
+from crud.user.utils import get_user_by_email, get_user_by_username
 from schemas.requests.user_from_user import CreateUser
 from schemas.response.user_for_user import UserGet
 
 
-async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
-    result = await db.scalars(select(User).where(User.email == email))
-    return result.first()
-
-
-async def get_user_by_username(db: AsyncSession, username: str):
-    result = await db.scalars(select(User).where(User.username == username))
-    return result.first()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def create_user(db: AsyncSession, user: CreateUser):
@@ -32,7 +27,7 @@ async def create_user(db: AsyncSession, user: CreateUser):
     db_user = User(
         username=user.username,
         email=user.email,
-        hashed_password=user.password,
+        hashed_password=pwd_context.hash(user.password),
         first_name=user.first_name,
         last_name=user.last_name,
     )
