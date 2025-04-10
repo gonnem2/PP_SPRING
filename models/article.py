@@ -21,3 +21,4 @@ class Article(Base):
     purchases = relationship("Purchase", back_populates="goods")
     notifications = relationship("Notification", back_populates="goods")
     good_stats = relationship("GoodStat", back_populates="goods")
+    receipt_items = relationship("ReceiptItem", back_populates="product")

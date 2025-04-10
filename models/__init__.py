@@ -8,3 +8,5 @@ from models.notification import Notification
 from models.good_stat import GoodStat
 from models.seller_stat import SellerStat
 from models.purchase import Purchase
+from models.receipt_items import ReceiptItem
+from models.receipt import Receipt

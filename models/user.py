@@ -20,3 +20,4 @@ class User(Base):
 
     sales = relationship("Sales", back_populates="user")
     seller_stats = relationship("SellerStat", back_populates="users")
+    receipts = relationship("Receipt", back_populates="user")

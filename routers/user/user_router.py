@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from typing import Annotated
 from sqlalchemy import select
 
@@ -15,7 +15,15 @@ router = APIRouter(tags=["Обработка пользователя"], prefix=
 
 
 @router.get("/")
-async def get_all_users(db: Annotated[AsyncSession, Depends(get_db)]):
+async def get_all_users(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[dict, Depends(get_current_user)],
+):
+    if not current_user.get("is_owner", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="У вас нет доступа",
+        )
     users = await db.scalars(select(User))
     return users.all()
 
