@@ -11,7 +11,7 @@ from backend.db import get_db
 from schemas.response.permission_set_for_user import PermissionResponse
 
 
-router = APIRouter(prefix="/permission", tags="Permission")
+router = APIRouter(prefix="/permission", tags=["Права доступа"])
 
 
 @router.patch(

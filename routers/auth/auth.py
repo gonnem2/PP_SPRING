@@ -10,7 +10,6 @@ from sqlalchemy import select, update
 from models import User
 from routers.auth.utils import create_access_token, get_current_user
 from crud.user.utils import authenticate_user
-from schemas.requests.permission_from_user import PermissionSet
 from schemas.response.jwt_token import Token
 from typing import Annotated
 
@@ -19,7 +18,6 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db import get_db
-from schemas.response.permission_set_for_user import PermissionResponse
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")

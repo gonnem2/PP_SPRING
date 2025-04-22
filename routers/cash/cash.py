@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from watchfiles import awatch
 
 from backend.db import get_db
 from crud.cash.cash_crud import create_receipt

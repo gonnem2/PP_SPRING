@@ -10,7 +10,7 @@ class Article(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
-    category_id = Column(Integer, ForeignKey("categories.id"))
+    category_id = Column(Integer, ForeignKey("categories.id", ondelete="CASCADE"))
     price = Column(DECIMAL)
     cost_price = Column(DECIMAL)
     stock_quantity = Column(Integer)
