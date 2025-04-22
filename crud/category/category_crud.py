@@ -1,9 +1,6 @@
-from typing import Annotated
-
 from fastapi import HTTPException, status
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from watchfiles import awatch
 
 from models import Category
 from schemas.requests.CategoryRequest import CategoryRequest
@@ -45,7 +42,13 @@ async def get_categories(db: AsyncSession, pagination: PaginationParams):
     categories_from_db = await db.scalars(
         select(Category).offset(pagination.offset).limit(pagination.size)
     )
-    return categories_from_db.all()
+
+    if not (result := categories_from_db.all()):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Категорий в БД не найдено!"
+        )
+
+    return result
 
 
 async def get_category_by_id(category_id: int, db: AsyncSession):
@@ -99,3 +102,6 @@ async def delete_category(
     await db.execute(delete(Category).where(Category.id == category_id))
     await db.commit()
     return True
+
+
+async def sell_receipt(receipt_id: int, current_user: dict, db: AsyncSession): ...
