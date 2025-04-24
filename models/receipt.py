@@ -18,5 +18,6 @@ class Receipt(Base):
 
     user = relationship("User", back_populates="receipts")
     items = relationship(
-        "ReceiptItem", back_populates="receipt", cascade="all, delete-orphan"
+        "ReceiptItem", back_populates="cash", cascade="all, delete-orphan"
     )
+    sales = relationship("Sales", back_populates="receipt")

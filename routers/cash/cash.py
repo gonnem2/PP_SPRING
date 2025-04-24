@@ -94,3 +94,6 @@ async def sell_receipt_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     await sell_receipt(receipt_id, current_user, db)
+
+
+

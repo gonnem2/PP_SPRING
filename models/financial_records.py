@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 
 from backend.db import Base
 
+# таблица для не для кассы: т.е. для сторонних закупок (например закупка товара продавцом или закупка стульев)
+
 
 class FinancialRecords(Base):
     __tablename__ = "financial_records"

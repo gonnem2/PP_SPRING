@@ -10,6 +10,7 @@ class Sales(Base):
     __tablename__ = "sales"
 
     id = Column(Integer, primary_key=True, index=True)
+    receipt_id = Column(Integer, ForeignKey("receipts.id"), nullable=False)
     good_id = Column(Integer, ForeignKey("goods.id"))
     quantity = Column(Integer)
     user_id = Column(Integer, ForeignKey("users.id"))
@@ -18,3 +19,4 @@ class Sales(Base):
 
     user = relationship("User", back_populates="sales")
     goods = relationship("Article", back_populates="sales")
+    receipt = relationship("Receipt", back_populates="sales")

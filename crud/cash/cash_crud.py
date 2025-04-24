@@ -35,6 +35,9 @@ async def add_items_to_receipt(
 ):
 
     await check_permission_owner_or_seller(current_user)
+
+    await check_receipt_status(db, receipt_id)
+
     good_from_db = await db.scalar(select(Article).where(Article.id == good_id))
 
     if not good_from_db:
@@ -95,6 +98,13 @@ async def get_all_receipts(
     return receipts_from_db
 
 
+async def check_receipt_status(db, receipt_id):
+    receipt_from_db = await db.scalar(select(Receipt).where(Receipt.id == receipt_id))
+
+    if receipt_from_db.status == "closed":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Чек закрыт")
+
+
 async def check_receipt_in_db(db, receipt_id, current_user):
     receipt_from_db = await db.scalar(select(Receipt).where(Receipt.id == receipt_id))
     if not receipt_from_db:
@@ -113,6 +123,7 @@ async def check_receipt_in_db(db, receipt_id, current_user):
 async def delete_product_from_receipt(
     db: AsyncSession, current_user: dict, receipt_id: int, product_id: int
 ):
+    await check_receipt_status(db, receipt_id)
     receipt_from_db = await check_receipt_in_db(db, receipt_id, current_user)
 
     product_from_db = await db.scalar(
@@ -141,3 +152,14 @@ async def get_check_info(current_user: dict, db: AsyncSession, receipt_id: int):
     )
     items = items.all()
     return items
+
+
+async def get_items_from_receipt(receipt_id: int, db: AsyncSession):
+    items = await db.scalars(
+        select(ReceiptItem).where(ReceiptItem.receipt_id == receipt_id)
+    )
+    return items.all()
+
+
+async def del_items_from_receipt_items_table(receipt_id: int, db: AsyncSession):
+    await db.execute(delete(ReceiptItem).where(ReceiptItem.receipt_id == receipt_id))

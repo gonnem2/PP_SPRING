@@ -5,6 +5,9 @@ from sqlalchemy.orm import relationship
 from backend.db import Base
 
 
+# тип операции траты: закупка товара, закупка мебели и т.д.
+
+
 class FinancialType(Base):
     __tablename__ = "financial_types"
 
