@@ -11,6 +11,7 @@ from crud.cash.cash_crud import (
     delete_product_from_receipt,
     get_check_info,
 )
+from services.cash.cash_service import sell_receipt
 from routers.auth.utils import get_current_user
 from schemas.requests.pagination import PaginationParams
 from schemas.response.receipt_responce import ReceiptResponse
@@ -92,8 +93,6 @@ async def sell_receipt_endpoint(
     receipt_id: Annotated[int, Path(gt=0)],
     current_user: Annotated[dict, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
-    await sell_receipt(receipt_id, current_user, db)
-
-
-
+) -> SellReceiptResponse:
+    res = await sell_receipt(receipt_id, current_user, db)
+    return res

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import HTTPException, status
 
 from sqlalchemy import select
@@ -13,6 +15,7 @@ from crud.sales.sales_crud import (
     set_closed_status_for_receipt,
 )
 from models import Receipt
+from schemas.response.sell_receipt import SellReceiptResponse
 
 
 async def sell_receipt(receipt_id: int, current_user: dict, db: AsyncSession):
@@ -56,3 +59,7 @@ async def sell_receipt(receipt_id: int, current_user: dict, db: AsyncSession):
             status_code=500,
             detail="Ошибка при сохранении данных",
         )
+
+    return SellReceiptResponse(
+        receipt_id=receipt_id, status="paid", sold_at=datetime.now()
+    )

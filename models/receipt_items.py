@@ -13,5 +13,5 @@ class ReceiptItem(Base):
     quantity = Column(Integer, nullable=False)
     price_at_sale = Column(Float(precision=2), nullable=False)
 
-    receipt = relationship("Receipt", back_populates="items")
+    cash = relationship("Receipt", back_populates="items")
     product = relationship("Article", back_populates="receipt_items")
