@@ -6,6 +6,7 @@ from routers.auth.auth import router as token_router
 from routers.cash.cash import router as cash_router
 from routers.permission.permission import router as permission_router
 from routers.category.category import router as category_router
+from routers.statistic.statistic_router import router as statistic_router
 
 
 app = FastAPI(title="Best Project in the world")
@@ -16,3 +17,4 @@ app.include_router(token_router)
 app.include_router(cash_router)
 app.include_router(permission_router)
 app.include_router(category_router)
+app.include_router(statistic_router)

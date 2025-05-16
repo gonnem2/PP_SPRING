@@ -2,9 +2,8 @@ from fastapi import status, HTTPException
 from sqlalchemy import select, update, delete
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from watchfiles import awatch
 
-from models import Article, ReceiptItem
+from models import Article, ReceiptItem, Sales
 from models.receipt import Receipt
 from schemas.requests.pagination import PaginationParams
 
@@ -75,6 +74,13 @@ async def add_items_to_receipt(
             price_at_sale=good_from_db.price,
         )
         db.add(items)
+    receipt_from_db: Receipt = await db.scalar(
+        select(Receipt).where(Receipt.id == receipt_id)
+    )
+    receipt_from_db.total_amount = (
+        float(receipt_from_db.total_amount) + float(good_from_db.price) * count
+    )
+
     await db.commit()
     await db.refresh(good_from_db)
 
@@ -121,19 +127,32 @@ async def check_receipt_in_db(db, receipt_id, current_user):
 
 
 async def delete_product_from_receipt(
-    db: AsyncSession, current_user: dict, receipt_id: int, product_id: int
+    db: AsyncSession, current_user: dict, receipt_id: int, product_id: int, count: int
 ):
     await check_receipt_status(db, receipt_id)
-    receipt_from_db = await check_receipt_in_db(db, receipt_id, current_user)
+    receipt_from_db: Receipt = await check_receipt_in_db(db, receipt_id, current_user)
 
-    product_from_db = await db.scalar(
+    product_from_db: ReceiptItem = await db.scalar(
         select(ReceiptItem).where(ReceiptItem.product_id == product_id)
     )
     if not product_from_db:
-        return True
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Такого тоавра нет"
+        )
 
-    # удаление из БД
-    await db.execute(delete(ReceiptItem).where(ReceiptItem.product_id == product_id))
+    if count > product_from_db.quantity:
+        raise HTTPException(status_code=400, detail="Слишком много товаров!")
+
+    product_from_db.quantity -= count
+
+    if product_from_db.quantity <= 0:
+        await db.execute(
+            delete(ReceiptItem).where(ReceiptItem.product_id == product_id)
+        )
+
+    receipt_from_db.total_amount = (
+        float(receipt_from_db.total_amount) - product_from_db.price_at_sale * count
+    )
 
     # вовзрат в товаров в БД
     await db.execute(
@@ -163,3 +182,53 @@ async def get_items_from_receipt(receipt_id: int, db: AsyncSession):
 
 async def del_items_from_receipt_items_table(receipt_id: int, db: AsyncSession):
     await db.execute(delete(ReceiptItem).where(ReceiptItem.receipt_id == receipt_id))
+
+
+async def receipt_from_sales_table(db: AsyncSession, receipt_id):
+    if receipt := await db.scalar(select(Sales).where(Sales.receipt_id == receipt_id)):
+        return receipt
+    raise HTTPException(status=status.HTTP_404_NOT_FOUND, detail="Такого чека нет!")
+
+
+async def del_items_from_sales_table(
+    product_id: int, quantity: int, db: AsyncSession, receipt_id: int
+):
+    sale_prod: Sales = await db.scalar(
+        select(Sales).where(
+            Sales.receipt_id == receipt_id and Sales.good_id == product_id
+        )
+    )
+
+    sale_prod.quantity -= quantity
+    if sale_prod.quantity == 0:
+        await db.delete(sale_prod)
+
+    await db.commit()
+
+
+async def get_all_sold_receipts(
+    db: AsyncSession, current_user: dict, pagination: PaginationParams
+):
+    query = (
+        select(Receipt)
+        .where(Receipt.status == "closed")
+        .order_by(Receipt.created_at.desc())  # Сортировка по дате
+        .limit(pagination.size)
+        .offset(pagination.offset)
+    )
+    result = await db.scalars(query)
+    receipts = result.all()
+
+    return receipts
+
+
+async def get_user_receipts_from_db(
+    db: AsyncSession, current_user: dict, pagination: PaginationParams
+):
+    results = await db.scalars(
+        select(Receipt)
+        .limit(pagination.size)
+        .offset(pagination.offset)
+        .where(Receipt.user_id == current_user.get("id"))
+    )
+    return results.all()

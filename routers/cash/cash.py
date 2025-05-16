@@ -10,8 +10,10 @@ from crud.cash.cash_crud import (
     get_all_receipts,
     delete_product_from_receipt,
     get_check_info,
+    get_all_sold_receipts,
 )
-from services.cash.cash_service import sell_receipt
+from schemas.requests.good_for_refund import GoodForRefund
+from services.cash.cash_service import sell_receipt, refund_good, get_user_receipts
 from routers.auth.utils import get_current_user
 from schemas.requests.pagination import PaginationParams
 from schemas.response.receipt_responce import ReceiptResponse
@@ -66,10 +68,13 @@ async def add_items_to_receipt_endpoint(
 async def delete_product_from_receipt_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[dict, Depends(get_current_user)],
+    count: Annotated[int, Query(gt=0)],
     receipt_id: Annotated[int, Path(gt=0)],
     product_id: Annotated[int, Path(gt=0)],
 ):
-    res = await delete_product_from_receipt(db, current_user, receipt_id, product_id)
+    res = await delete_product_from_receipt(
+        db, current_user, receipt_id, product_id, count
+    )
     return {"detail": "Товар удален"}
 
 
@@ -95,4 +100,40 @@ async def sell_receipt_endpoint(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> SellReceiptResponse:
     res = await sell_receipt(receipt_id, current_user, db)
+    return res
+
+
+@router.post(
+    "/receipts/{receipt_id}/refund",
+    summary="Возврат товаров из чека",
+)
+async def refund_goods_endpoint(
+    receipt_id: Annotated[int, Path(ge=1)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[dict, Depends(get_current_user)],
+    good_for_refund: GoodForRefund,
+):
+    await refund_good(receipt_id, db, current_user, good_for_refund)
+    return {"message": f"{good_for_refund.good_id} успешно обновлен"}
+
+
+@router.get("/sales/receipts")
+async def get_all_sold_receipts_endpoint(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[dict, Depends(get_current_user)],
+    paginations: Annotated[PaginationParams, Query(...)],
+):
+    res = await get_all_sold_receipts(db, current_user, paginations)
+    return res
+
+
+@router.get(
+    "/sales/receipts/my_receipts}", summary="Возвращает все чеки текущего пользователя"
+)
+async def get_all_receipts(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[dict, Depends(get_current_user)],
+    pagination: Annotated[PaginationParams, Query(...)],
+):
+    res = await get_user_receipts(db, current_user, pagination)
     return res

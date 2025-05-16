@@ -177,10 +177,6 @@ async def update_stock_quantity(good_id: int, quantity_change: int, db: AsyncSes
     await db.commit()
 
 
-from sqlalchemy import select, func
-from fastapi import HTTPException, status
-
-
 async def get_prod_stat(
     db: AsyncSession,
     product_id: int,

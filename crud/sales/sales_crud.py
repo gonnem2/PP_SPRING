@@ -1,6 +1,9 @@
+import datetime
+
 from fastapi import HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from models import ReceiptItem
 from models.sales import Sales
@@ -36,4 +39,5 @@ async def add_items_to_sales_table(
 
 
 async def set_closed_status_for_receipt(db, receipt_from_db):
+    receipt_from_db.closed_at = datetime.datetime.now()
     receipt_from_db.status = "closed"

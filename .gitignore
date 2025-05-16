@@ -1,5 +1,8 @@
 ### Python template
 # Byte-compiled / optimized / DLL files
+.env
+venv
+alembic.ini
 __pycache__/
 *.py[cod]
 *$py.class

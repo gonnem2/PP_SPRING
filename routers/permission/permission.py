@@ -54,7 +54,5 @@ async def change_user_permission(
         user_id=user_id,
         message=f"Статус пользователя"
         f" успешно изменен на"
-        f" {"Owner" * permission_status.set_owner +
-            "Warehouse_worker" * permission_status.set_warehouse_worker
-            + "Seller" * permission_status.set_seller}",
+        f" {'Owner' * permission_status.set_owner +'Warehouse_worker' * permission_status.set_warehouse_worker + 'Seller' * permission_status.set_seller}",
     )
